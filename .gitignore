@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# AI tooling and design caches (not needed to build)
+.claude/
+.claude-flow/
+.impeccable/
+
+# notes and agent files stay local; every Markdown file is private
+# (AGENTS.md is rewritten by `next dev`, so it stays ignored rather than deleted)
+*.md

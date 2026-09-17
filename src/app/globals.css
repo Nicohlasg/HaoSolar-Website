@@ -1,26 +1,326 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  Hao Solar design tokens, from the official brand sheet (15 Sep 2026):
+  lime #d8ff32, forest #09641f, black #000000, light grey #dcdcdc, grey #a7a7a7.
+  Derived: paper-2 (a lighter tint of the light grey), ink-2 (a darker grey so
+  secondary text passes AA; #a7a7a7 is kept for decoration and the wordmark).
+  Lime is reserved for savings, credits and the primary action. Forest is the
+  secondary accent: links, ticks, chart high line, region tints.
+  Alert red appears only on a diversion (HDB, condo) and on "to confirm" marks.
+*/
+@theme {
+  --color-paper: #ffffff;
+  --color-paper-2: #f4f4f4;
+  --color-ink: #000000;
+  --color-ink-2: #5a5a5a;
+  --color-grey: #a7a7a7;
+  --color-rule: #dcdcdc;
+  --color-lime: #d8ff32;
+  --color-lime-deep: #c4ec1c;
+  --color-forest: #09641f;
+  --color-alert: #d43a2f;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+
+  --shadow-sheet: 0 18px 40px -20px rgb(0 0 0 / 0.35), 0 2px 6px -2px rgb(0 0 0 / 0.15);
+
+  --breakpoint-xs: 26rem;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-bricolage), "Helvetica Neue", Arial, sans-serif;
+  --font-body: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* Browser surfaces carry the palette too. */
+::selection {
+  background: var(--color-lime);
+  color: var(--color-ink);
+}
+
+* {
+  caret-color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+a {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  line-height: 1.05;
+}
+
+/* Statement grammar */
+.tnum {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.leader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.leader::before {
+  content: "";
+  order: 2;
+  flex: 1 1 auto;
+  min-width: 1rem;
+  border-bottom: 1px dotted var(--color-rule);
+  transform: translateY(-0.3em);
+}
+
+.leader > :first-child {
+  order: 1;
+  min-width: 0;
+}
+
+.leader > :last-child {
+  order: 3;
+  font-variant-numeric: tabular-nums lining-nums;
+  text-align: right;
+  max-width: 62%;
+}
+
+.perforation {
+  height: 0;
+  border-top: 2px dashed var(--color-rule);
+}
+
+.sheet {
+  background: var(--color-paper);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sheet);
+}
+
+.stamp {
+  background: var(--color-lime);
+  color: var(--color-ink);
+  border-radius: var(--radius-sm);
+  padding: 0.15em 0.5em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Marquee: pure CSS, pause on hover, static under reduced motion */
+.marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  gap: 1.25rem;
+  width: max-content;
+  padding-inline: 1.25rem;
+  animation: marquee 60s linear infinite;
+}
+
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    mask-image: none;
+  }
+  .marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    width: auto;
+  }
+  .marquee-track > [aria-hidden="true"] {
+    display: none;
+  }
+}
+
+/* Testimonial columns: fade top and bottom; hover slows one column (JS), focus pauses all */
+.testimonial-columns {
+  mask-image: linear-gradient(to bottom, transparent, black 8%, black 92%, transparent);
+}
+
+.column-track {
+  animation-name: column-up;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.testimonial-columns:focus-within .column-track {
+  animation-play-state: paused;
+}
+
+/* Island map: two forest glows drifting slowly over deep green-black, so the stage breathes. */
+.island-stage {
+  background-color: #070a08;
+  background-image:
+    radial-gradient(60% 55% at 20% 30%, rgba(9, 100, 31, 0.28), transparent 70%),
+    radial-gradient(50% 60% at 80% 75%, rgba(9, 100, 31, 0.18), transparent 70%);
+  background-size: 200% 200%;
+  animation: island-drift 28s ease-in-out infinite alternate;
+}
+
+@keyframes island-drift {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: 100% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .island-stage {
+    animation: none;
+  }
+}
+
+@keyframes column-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+/* Frosted glass for the floating navigation */
+.glass {
+  background: color-mix(in oklab, var(--color-paper) 62%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-paper) 70%, var(--color-rule));
+  box-shadow:
+    0 10px 30px -18px rgb(0 0 0 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.6);
+  -webkit-backdrop-filter: saturate(160%) blur(18px);
+  backdrop-filter: saturate(160%) blur(18px);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .glass {
+    background: color-mix(in oklab, var(--color-paper) 94%, transparent);
+  }
+}
+
+/* Menus are opaque paper: any transparency lets bright page text bleed through,
+   and the frosted effect belongs to the bar, not the panel. */
+.glass-solid {
+  background: var(--color-paper);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* Neumorphism: soft extruded surfaces on the same grey as the page, used
+   sparingly (benefit cards, the impact card, footer controls). Two shadows:
+   light from the top-left, shade to the bottom-right. Inset variant for wells
+   and inputs. Keep it on paper-2 backgrounds only; it does not work on white. */
+.neu {
+  background: #f4f4f4;
+  border-radius: 1.5rem;
+  box-shadow:
+    -8px -8px 18px rgb(255 255 255 / 0.9),
+    10px 10px 22px rgb(0 0 0 / 0.1);
+}
+
+.neu-sm {
+  border-radius: 1rem;
+  box-shadow:
+    -5px -5px 12px rgb(255 255 255 / 0.9),
+    6px 6px 14px rgb(0 0 0 / 0.1);
+}
+
+.neu-inset {
+  background: #f4f4f4;
+  box-shadow:
+    inset 5px 5px 10px rgb(0 0 0 / 0.09),
+    inset -5px -5px 10px rgb(255 255 255 / 0.95);
+}
+
+.neu-press:active {
+  box-shadow:
+    inset 4px 4px 8px rgb(0 0 0 / 0.1),
+    inset -4px -4px 8px rgb(255 255 255 / 0.95);
+}
+
+/* FAQ chat: grid-rows height animation and typing dots */
+.chat-answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.chat-answer[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+.chat-answer > div {
+  overflow: hidden;
+}
+.typing-dot {
+  animation: typing 1.2s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) { animation-delay: 150ms; }
+.typing-dot:nth-child(3) { animation-delay: 300ms; }
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-3px); opacity: 1; }
+}
+
+body {
+  overflow-x: clip;
 }

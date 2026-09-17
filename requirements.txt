@@ -1,0 +1,34 @@
+# Hao Solar website: what a machine needs to build and run it.
+# This is a Node.js (Next.js) project, so there is nothing to pip install.
+# Every JavaScript package is pinned in package-lock.json and installed with `npm ci`.
+
+# Runtime
+node>=22        # built and tested on 26.2.0; Vercel runs 22.x (see .nvmrc)
+npm>=10         # built with 11.13.0
+
+# Framework and libraries (installed by `npm ci`, listed for reference)
+next==16.3.5
+react==19.2.8
+react-dom==19.2.8
+framer-motion>=13.2
+tailwindcss>=4
+lucide-react>=1.45
+zod>=4.6
+clsx>=2.1
+
+# Optional
+# Google Chrome, only for `node scripts/shoot.mjs` (Playwright screenshot and overflow check)
+
+# Setup on a fresh machine
+#   nvm use            (or install Node 22+ any other way)
+#   npm ci
+#   npm run dev        http://localhost:3000
+#   npm run build && npm start
+#   npm run lint
+#   npm test
+
+# Environment variables (set in .env.local locally, in Vercel project settings for deploys)
+# Without them the lead form still works and logs enquiries to the server console.
+#   RESEND_API_KEY      Resend API key used to email new leads
+#   LEAD_NOTIFY_EMAIL   inbox that receives new leads
+#   LEAD_FROM_EMAIL     sender address (defaults to leads@haosolar.com.sg)
