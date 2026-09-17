@@ -37,9 +37,12 @@ export function ProjectShowcase({
   lede?: string;
   tone?: "paper" | "plain";
 }) {
-  /* Photographed jobs lead; unphotographed ones fill in only while there are fewer than three with photos. */
+  /*
+   * Jobs with a second frame lead, so the showcase never repeats the hero's
+   * frame [0]; others fill in only while there are fewer than three.
+   */
   const inCategory = PROJECTS.filter((p) => p.category === category);
-  const shot = inCategory.filter((p) => p.photos);
+  const shot = inCategory.filter((p) => (p.photos?.length ?? 0) > 1);
   const items = (shot.length >= 3 ? shot : inCategory).slice(0, 5);
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);

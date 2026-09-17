@@ -39,7 +39,7 @@ export function HoverRevealCard({ project, headingLevel = "h3" }: { project: Pro
       {/* resting caption */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-ink/70 to-transparent p-4 text-paper">
         <Heading className="text-lg font-semibold leading-tight">{project.area}</Heading>
-        <span className="text-sm tnum">{project.kwp !== null ? `${project.kwp} kWp` : "EV"}</span>
+        <span className="text-sm tnum">{capacityTag(project)}</span>
       </div>
 
       {/* reveal */}
@@ -70,4 +70,10 @@ export function HoverRevealCard({ project, headingLevel = "h3" }: { project: Pro
       </motion.div>
     </motion.article>
   );
+}
+
+/** Corner tag: system size when known, "EV" for charger-only jobs, blank until Hugh confirms the size. */
+function capacityTag(project: Project): string {
+  if (project.kwp !== null) return `${project.kwp} kWp`;
+  return project.category === "ev" ? "EV" : "";
 }

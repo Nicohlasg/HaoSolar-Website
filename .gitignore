@@ -48,3 +48,4 @@ next-env.d.ts
 # notes and agent files stay local; every Markdown file is private
 # (AGENTS.md is rewritten by `next dev`, so it stays ignored rather than deleted)
 *.md
+!/README.md

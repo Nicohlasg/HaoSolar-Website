@@ -27,8 +27,11 @@ clsx>=2.1
 #   npm run lint
 #   npm test
 
-# Environment variables (set in .env.local locally, in Vercel project settings for deploys)
-# Without them the lead form still works and logs enquiries to the server console.
-#   RESEND_API_KEY      Resend API key used to email new leads
-#   LEAD_NOTIFY_EMAIL   inbox that receives new leads
-#   LEAD_FROM_EMAIL     sender address (defaults to leads@haosolar.com.sg)
+# Environment variables
+# None are required to build or run. The lead form carries a draft Resend
+# block (RESEND_API_KEY, LEAD_NOTIFY_EMAIL, LEAD_FROM_EMAIL); the company will
+# replace it with its own email service and database. See README.md.
+
+# Before committing new photos
+#   npm run photos:clean
+#   npm run photos:check

@@ -31,7 +31,9 @@ export type Project = {
 const SHOT = { width: 2000, height: 1125 } as const;
 
 /**
- * Real jobs first, from the "Yes" folders of the drone shoots (17 Sep 2026).
+ * Real jobs first: the "Yes" folders of the drone shoots plus the curated
+ * "to use for website" folder (17 Sep 2026). All exports are stripped of GPS
+ * with `npm run photos:clean`; map positions are rounded to about a kilometre.
  * kWp and savings are unknown until Hugh confirms, so those fields stay null
  * and the card shows the roof only. Areas are rough, never the address.
  * Photo order matters: [0] top-down for the hero, [1] for the showcase,
@@ -46,18 +48,18 @@ export const PROJECTS: readonly Project[] = [
   {
     id: "merino",
     category: "landed",
-    area: "Seletar Hills",
+    area: "Alexandra", // from the drone GPS, check the area name
     kwp: null,
     year: 2026,
     note: "Detached, glazed tile roof, panels on three faces",
     roofMaterial: "Glazed clay tiles",
     annualSavingsSgd: null,
-    geo: { lat: 1.3868, lng: 103.8683 },
+    geo: { lat: 1.29, lng: 103.806 },
     photos: [
-      { src: "/images/projects/merino-cres/merino-cres-1.jpg", alt: "Drone view straight down onto a detached house in Seletar Hills, its green tiled roof covered in solar panels", ...SHOT },
-      { src: "/images/projects/merino-cres/merino-cres-2.jpg", alt: "Drone view of the Seletar Hills house from the street side, panels on the front and side roof faces", ...SHOT },
-      { src: "/images/projects/merino-cres/merino-cres-3.jpg", alt: "Drone view of the Seletar Hills roof between its orange-roofed neighbours", ...SHOT },
-      { src: "/images/projects/merino-cres/merino-cres-4.jpg", alt: "Drone view of the Seletar Hills house showing the full panel array and the surrounding estate", ...SHOT },
+      { src: "/images/projects/merino-cres/merino-cres-2.jpg", alt: "Drone view of a detached house from the street side, panels on the front and side faces of its grey tiled roof", ...SHOT },
+      { src: "/images/projects/merino-cres/merino-cres-4.jpg", alt: "Drone view of the detached house showing the full panel array and the surrounding estate", ...SHOT },
+      { src: "/images/projects/merino-cres/merino-cres-3.jpg", alt: "Drone view of the grey tiled roof and its panels between orange-roofed neighbours", ...SHOT },
+      { src: "/images/projects/merino-cres/merino-cres-1.jpg", alt: "Drone view down onto the detached house, its tiled roof covered in solar panels, offices behind", ...SHOT },
     ],
     sample: false,
   },
@@ -72,9 +74,9 @@ export const PROJECTS: readonly Project[] = [
     annualSavingsSgd: null,
     geo: { lat: 1.3355, lng: 103.7975 },
     photos: [
-      { src: "/images/projects/greenwood-ave/greenwood-ave-3.jpg", alt: "Drone view straight down onto the Bukit Timah roof and its panel rows", ...SHOT },
       { src: "/images/projects/greenwood-ave/greenwood-ave-1.jpg", alt: "Drone view of a semi-detached house in Bukit Timah with solar panels on its terracotta roof, neighbours either side", ...SHOT },
       { src: "/images/projects/greenwood-ave/greenwood-ave-2.jpg", alt: "Drone view of the Bukit Timah house and its garden, panels on the main roof", ...SHOT },
+      { src: "/images/projects/greenwood-ave/greenwood-ave-3.jpg", alt: "Drone view straight down onto the Bukit Timah roof and its panel rows", ...SHOT },
     ],
     sample: false,
   },
@@ -98,23 +100,65 @@ export const PROJECTS: readonly Project[] = [
   {
     id: "inggu",
     category: "landed",
-    area: "Seletar Hills",
+    area: "Sembawang",
     kwp: null,
     year: 2026,
     note: "Terrace, metal sheet roof",
     roofMaterial: "Metal sheet",
     annualSavingsSgd: null,
-    geo: { lat: 1.3922, lng: 103.8712 },
+    geo: { lat: 1.459, lng: 103.838 },
     photos: [
-      { src: "/images/projects/inggu-rd/inggu-rd-1.jpg", alt: "Drone view of solar panels on the metal sheet roof of a terrace house in Seletar Hills", ...SHOT },
-      { src: "/images/projects/inggu-rd/inggu-rd-2.jpg", alt: "Drone view of the Seletar Hills terrace roof with panels near the ridge", ...SHOT },
+      { src: "/images/projects/inggu-rd/inggu-rd-1.jpg", alt: "Drone view of solar panels on the metal sheet roof of a terrace house in Sembawang", ...SHOT },
+      { src: "/images/projects/inggu-rd/inggu-rd-2.jpg", alt: "Drone view of the Sembawang terrace roof with panels near the ridge", ...SHOT },
     ],
     sample: false,
   },
-  { id: "namly", category: "landed", area: "Bukit Timah", kwp: null, year: 2026, note: "Detached, Namly estate", roofMaterial: "To confirm", annualSavingsSgd: null, geo: { lat: 1.3235, lng: 103.7885 }, sample: false },
-  { id: "kasau", category: "landed", area: "Seletar Hills", kwp: null, year: 2026, note: "Landed, Seletar Hills estate", roofMaterial: "To confirm", annualSavingsSgd: null, geo: { lat: 1.3895, lng: 103.873 }, sample: false },
+  {
+    id: "namly",
+    category: "landed",
+    area: "Bukit Timah",
+    kwp: null,
+    year: 2026,
+    note: "Detached, Namly estate",
+    roofMaterial: "Clay tiles",
+    annualSavingsSgd: null,
+    geo: { lat: 1.3235, lng: 103.7885 },
+    photos: [
+      { src: "/images/projects/namly-pl/namly-pl-1.jpg", alt: "Drone view straight down onto a detached house in Bukit Timah, panels on every face of its terracotta hip roof, pool beside it", ...SHOT },
+    ],
+    sample: false,
+  },
+  {
+    id: "kasau",
+    category: "landed",
+    area: "Kranji", // from the drone GPS, check the area name
+    kwp: null,
+    year: 2026,
+    note: "Landed, flat and pitched roof sections",
+    roofMaterial: "To confirm",
+    annualSavingsSgd: null,
+    geo: { lat: 1.417, lng: 103.759 },
+    photos: [
+      { src: "/images/projects/jalan-kasau/jalan-kasau-1.jpg", alt: "Drone view straight down onto a landed house in Kranji, panel rows across two grey roof sections beside a tree-lined road", ...SHOT },
+    ],
+    sample: false,
+  },
+  {
+    id: "inggu-2",
+    category: "landed",
+    area: "Sembawang",
+    kwp: null,
+    year: 2026,
+    note: "Landed, a few doors from another of our roofs",
+    roofMaterial: "To confirm",
+    annualSavingsSgd: null,
+    geo: { lat: 1.461, lng: 103.841 },
+    photos: [
+      { src: "/images/projects/inggu-rd-b/inggu-rd-b-1.jpg", alt: "Drone view over a row of landed houses in Sembawang with pools, solar panels on the grey roofs, street and parked cars alongside", ...SHOT },
+    ],
+    sample: false,
+  },
   { id: "peakville", category: "landed", area: "Serangoon", kwp: null, year: 2026, note: "Landed", roofMaterial: "To confirm", annualSavingsSgd: null, geo: { lat: 1.3545, lng: 103.869 }, sample: false }, // district guessed from the street name, check
-  { id: "inggu-2", category: "landed", area: "Seletar Hills", kwp: null, year: 2026, note: "Landed, Seletar Hills estate", roofMaterial: "To confirm", annualSavingsSgd: null, geo: { lat: 1.3915, lng: 103.8695 }, sample: false },
   { id: "westcoast", category: "landed", area: "West Coast", kwp: null, year: 2026, note: "Landed", roofMaterial: "To confirm", annualSavingsSgd: null, geo: { lat: 1.305, lng: 103.758 }, sample: false },
   { id: "astrid", category: "landed", area: "Holland", kwp: null, year: 2026, note: "Detached, Queen Astrid Park", roofMaterial: "To confirm", annualSavingsSgd: null, geo: { lat: 1.3175, lng: 103.792 }, sample: false },
   { id: "paras", category: "landed", area: "Seletar Hills", kwp: null, year: 2026, note: "Landed", roofMaterial: "To confirm", annualSavingsSgd: null, geo: { lat: 1.388, lng: 103.875 }, sample: false }, // district guessed from the street name, check

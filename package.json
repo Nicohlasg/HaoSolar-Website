@@ -11,7 +11,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "photos:clean": "node scripts/strip-photo-metadata.mjs public/images",
+    "photos:check": "node scripts/strip-photo-metadata.mjs --check public/images"
   },
   "dependencies": {
     "clsx": "^2.1.1",
