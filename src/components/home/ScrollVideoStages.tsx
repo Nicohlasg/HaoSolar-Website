@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useInView, useScroll, useSpring } from "framer-motion";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll, useSpring } from "framer-motion";
 import { ChevronRight, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
@@ -79,15 +79,18 @@ function ChapterNav({ activeIndex, progress, visible }: { activeIndex: number; p
 export function ScrollVideoStages() {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = usePrefersReducedMotion();
-  const inView = useInView(ref, { amount: 0.05 });
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  /* The pill lives while the clip is pinned: from the section's top nearing the viewport top until its bottom meets the viewport bottom, when the next section starts to show. */
+  const { scrollYProgress: span } = useScroll({ target: ref, offset: ["start 30%", "end end"] });
   const [active, setActive] = useState(0);
+  const [inView, setInView] = useState(false);
   const n = MEDIA_SECTIONS.length;
 
   useEffect(() => {
     const unsub = scrollYProgress.on("change", (v) => setActive(Math.min(Math.floor(v * n), n - 1)));
     return () => unsub();
   }, [scrollYProgress, n]);
+  useMotionValueEvent(span, "change", (v) => setInView(v > 0 && v < 1));
 
   if (reduced) {
     return (

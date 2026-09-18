@@ -30,8 +30,10 @@ export type Project = {
 
 /** Full drone frame, exported at native size so the browser can pick any variant. */
 const SHOT = { width: 4032, height: 2268 } as const;
-/** Frames the drone shot upright. */
-const UPRIGHT = { width: 2268, height: 4032 } as const;
+/** Upright drone frames, cropped to landscape on 18 Sep 2026 so every photo on the site is landscape; the crops keep the roof and drop the street. */
+const CROP_WIDE = { width: 2268, height: 1512 } as const;
+const CROP_STEVEN_CLOSE = { width: 2100, height: 1400 } as const;
+const CROP_STEVEN_DOWN = { width: 1560, height: 1040 } as const;
 
 /**
  * Real jobs first: the "Yes" folders of the drone shoots plus the curated
@@ -62,7 +64,7 @@ export const PROJECTS: readonly Project[] = [
       { src: "/images/projects/merino-cres/merino-cres-2.jpg", alt: "Drone view of a detached house from the street side, panels on the front and side faces of its grey tiled roof", ...SHOT },
       { src: "/images/projects/merino-cres/merino-cres-4.jpg", alt: "Drone view of the detached house showing the full panel array and the surrounding estate", ...SHOT },
       { src: "/images/projects/merino-cres/merino-cres-3.jpg", alt: "Drone view of the grey tiled roof and its panels between orange-roofed neighbours", ...SHOT },
-      { src: "/images/projects/merino-cres/merino-cres-1.jpg", alt: "Drone view down onto the detached house, its tiled roof covered in solar panels, offices behind", ...UPRIGHT },
+      { src: "/images/projects/merino-cres/merino-cres-1.jpg", alt: "Drone view down onto the detached house's grey tiled roof covered in solar panels", ...CROP_WIDE },
     ],
     sample: false,
   },
@@ -79,7 +81,7 @@ export const PROJECTS: readonly Project[] = [
     photos: [
       { src: "/images/projects/greenwood-ave/greenwood-ave-1.jpg", alt: "Drone view of a semi-detached house in Bukit Timah with solar panels on its terracotta roof, neighbours either side", ...SHOT },
       { src: "/images/projects/greenwood-ave/greenwood-ave-2.jpg", alt: "Drone view of the Bukit Timah house and its garden, panels on the main roof", ...SHOT },
-      { src: "/images/projects/greenwood-ave/greenwood-ave-3.jpg", alt: "Drone view straight down onto the Bukit Timah roof and its panel rows", ...UPRIGHT },
+      { src: "/images/projects/greenwood-ave/greenwood-ave-3.jpg", alt: "Drone view straight down onto the Bukit Timah roof and its panel rows", ...CROP_WIDE },
     ],
     sample: false,
   },
@@ -94,9 +96,9 @@ export const PROJECTS: readonly Project[] = [
     annualSavingsSgd: null,
     geo: { lat: 1.3145, lng: 103.8285 },
     photos: [
-      { src: "/images/projects/steven-rd/steven-rd-2.jpg", alt: "Aerial view straight down onto the Stevens Road roof showing the full panel array", ...UPRIGHT },
       { src: "/images/projects/steven-rd/steven-rd-1.jpg", alt: "Aerial view of a detached house near Stevens Road, its flat roof lined with rows of solar panels", ...SHOT },
-      { src: "/images/projects/steven-rd/steven-rd-3.jpg", alt: "Close aerial view of the panel rows on the Stevens Road roof", ...UPRIGHT },
+      { src: "/images/projects/steven-rd/steven-rd-3.jpg", alt: "Close aerial view of the panel rows on the Stevens Road roof", ...CROP_STEVEN_CLOSE },
+      { src: "/images/projects/steven-rd/steven-rd-2.jpg", alt: "Aerial view straight down onto the Stevens Road roof showing the panel array", ...CROP_STEVEN_DOWN },
     ],
     sample: false,
   },
@@ -189,8 +191,8 @@ export const PROJECT_CATEGORIES: readonly { value: ProjectCategory | "all"; labe
 ];
 
 /**
- * The five roofs the hero shows, in order. Landscape frames only: an upright
- * frame would be cropped to a slot in a full-width viewport. Chosen by the
+ * The five roofs the hero shows, in order. Every frame on the site is now
+ * landscape (the upright ones were cropped on 18 Sep 2026). Chosen by the
  * user from the "to use for website" drone folder (18 Sep 2026).
  */
 export const HERO_REEL_IDS = ["namly", "inggu-2", "kasau", "merino", "greenwood"] as const;

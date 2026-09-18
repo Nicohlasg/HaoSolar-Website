@@ -18,9 +18,9 @@ export const SITE = {
   whatsappNumber: "6580208530",
   hours: "8am to 6pm, daily",
   url: "https://haosolar.com.sg",
+  /** bizSAFE Level 3 (WSH Council), the level the 2026 company brochure states. Badge art from the brochure folder. */
   accreditations: [
-    { label: "SME500", year: 2024, title: "SME500 Singapore Award Winner 2024", image: "/images/badges/sme500-2024.jpg", width: 500, height: 393 },
-    { label: "E100", year: 2024, title: "Singapore Entrepreneur 100 Award, 2024 winner", image: "/images/badges/e100-2024.png", width: 800, height: 688 },
+    { label: "bizSAFE Level 3", year: 2026, title: "bizSAFE Level 3 certified for workplace safety and health", image: "/images/badges/bizsafe-3.png", width: 1277, height: 641 },
   ],
   /**
    * Management-system certificates from the brand folder (EQA IMS, SAC-accredited).

@@ -129,7 +129,7 @@ export function MotionFooter() {
         <motion.div variants={rise} className="border-t border-rule">
           <Container className="flex flex-col items-center gap-5 py-8">
             <Logo />
-            <ul className="flex flex-wrap items-center justify-center gap-4" aria-label="Awards and certifications">
+            <ul className="flex flex-wrap items-center justify-center gap-4" aria-label="Certifications">
               {[...SITE.accreditations.map((a) => ({ src: a.image, alt: a.title, h: "h-12" })), ...SITE.certifications.map((c) => ({ src: c.image, alt: `${c.label}, ${c.subject}, certificate ${c.cert}`, h: "h-10" }))].map((b) => (
                 <li key={b.src}>
                   <Image src={b.src} alt={b.alt} width={300} height={120} className={cn(b.h, "w-auto rounded-sm bg-paper p-1")} />

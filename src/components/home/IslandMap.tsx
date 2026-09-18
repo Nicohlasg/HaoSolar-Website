@@ -7,7 +7,7 @@ import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { DiaText } from "@/components/ui/DiaText";
 import { PROJECTS } from "@/content/projects";
 import { MAP_CAPTION, STRENGTHS, STRENGTHS_HEADLINE, STRENGTHS_KICKER, STRENGTHS_LEDE } from "@/content/strengths";
-import { cardSide, clampPan, clusterMarkers, HOME_VIEW, inFilter, MAP_FILTERS, toBoxPx, toPercent, ZOOM, zoomAround, type Box, type MapFilter, type View } from "@/lib/map";
+import { clampPan, clusterMarkers, HOME_VIEW, inFilter, MAP_FILTERS, splitZoom, toBoxPx, toPercent, ZOOM, zoomAround, type Box, type MapFilter, type View } from "@/lib/map";
 import { EASE_OUT, usePrefersReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/cn";
 import { SingaporeMap } from "./SingaporeMap";
@@ -21,6 +21,8 @@ import { ReviewTicker } from "./ReviewTicker";
 const CLOSE_DELAY_MS = 260;
 /** Below this movement a pointer down and up on the map counts as a tap, not a drag. */
 const DRAG_THRESHOLD_PX = 4;
+/** Wheel zoom strength: scale factor per pixel of wheel travel, as an exponent. */
+const WHEEL_ZOOM_RATE = 0.004;
 
 function FilterToggle({ value, onChange }: { value: MapFilter; onChange: (v: MapFilter) => void }) {
   return (
@@ -114,18 +116,42 @@ function useBox(ref: React.RefObject<HTMLDivElement | null>): Box {
  * One stage: the island sits to the right of the copy. The visitor zooms
  * with the buttons, Ctrl or Cmd plus wheel, or by hovering a dot; drags to
  * pan. Dots that crowd together on screen merge into a numbered disc that
- * opens a list; zooming in splits them back into single dots with cards.
- * Below lg everything stacks and the cards become panels under the map.
+ * lists them on hover and splits them apart on click. A dot's card grows
+ * out of the dot; "View more" focuses that roof and fades every other
+ * marker until the visitor clicks outside or presses Escape. Below lg
+ * everything stacks and the cards become panels under the map.
  */
 export function IslandMap() {
-  const [filter, setFilter] = useState<MapFilter>("landed");
+  const [filter, setFilterState] = useState<MapFilter>("landed");
   const reduced = usePrefersReducedMotion();
   const frameRef = useRef<HTMLDivElement>(null);
   const box = useBox(frameRef);
   const [view, setView] = useState<View>(HOME_VIEW);
   const [dragging, setDragging] = useState(false);
   const drag = useRef<{ x: number; y: number; vx: number; vy: number; moved: boolean } | null>(null);
-  const { target, openDot, openCluster, close, leave, cancel } = useHoverTarget();
+  const hover = useHoverTarget();
+  const { openDot, openCluster, cancel } = hover;
+  /* The focused roof: hover no longer closes its card, and the other markers fade. */
+  const [focusedId, setFocusedId] = useState<string | null>(null);
+  const target: Target = focusedId ? { kind: "dot", id: focusedId } : hover.target;
+  const close = useCallback(() => {
+    if (!focusedId) hover.close();
+  }, [focusedId, hover]);
+  const leave = useCallback(() => {
+    if (!focusedId) hover.leave();
+  }, [focusedId, hover]);
+  const unfocus = useCallback(() => {
+    setFocusedId(null);
+    hover.close();
+  }, [hover]);
+  /* Switching the filter drops the focus, since the focused roof may no longer be on the map. */
+  const setFilter = useCallback(
+    (f: MapFilter) => {
+      setFilterState(f);
+      unfocus();
+    },
+    [unfocus],
+  );
 
   /* Every real job is a dot, photographed or not. */
   const projects = useMemo(() => PROJECTS.filter((p) => !p.sample), []);
@@ -143,16 +169,51 @@ export function IslandMap() {
   const activePx = activeDot ? toBoxPx(activeDot.at, box, shown) : activeCluster ? toBoxPx(activeCluster.at, box, shown) : null;
 
   const zoomBy = useCallback((factor: number) => setView((v) => zoomAround(v, { x: 50, y: 50 }, v.z * factor, box)), [box]);
-  const reset = useCallback(() => setView(HOME_VIEW), []);
+  const reset = useCallback(() => {
+    setView(HOME_VIEW);
+    unfocus();
+  }, [unfocus]);
+  /* Zoom in on a cluster until its roofs stand apart as single dots. */
+  const splitCluster = useCallback(
+    (key: string) => {
+      const c = clusters.find((x) => x.key === key);
+      if (!c) return;
+      const z = splitZoom(c.items, box);
+      setView((v) => zoomAround(v, c.at, Math.max(v.z * ZOOM.step, z), box));
+      hover.close();
+    },
+    [clusters, box, hover],
+  );
+  /* A row in a cluster's list: zoom until that roof is on its own, then open its card. */
   const pick = useCallback(
     (id: string) => {
       const d = dots.find((x) => x.id === id);
       if (!d) return;
-      setView((v) => zoomAround(v, d.at, Math.max(v.z * 2.5, 3), box));
+      const c = clusters.find((x) => x.items.some((i) => i.id === id));
+      const z = c ? splitZoom(c.items, box) : ZOOM.min;
+      setView((v) => zoomAround(v, d.at, Math.max(v.z * ZOOM.step, z, 3), box));
       openDot(id);
     },
-    [dots, box, openDot],
+    [dots, clusters, box, openDot],
   );
+
+  /* Focused view: a click anywhere outside the card, or Escape, brings the island back. */
+  useEffect(() => {
+    if (!focusedId) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.target instanceof Element && e.target.closest("[data-marker-card]")) return;
+      unfocus();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") unfocus();
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [focusedId, unfocus]);
 
   /* Ctrl or Cmd plus wheel zooms at the cursor; a plain wheel keeps scrolling the page. Native listener so preventDefault works. */
   useEffect(() => {
@@ -162,7 +223,7 @@ export function IslandMap() {
       if (!(e.ctrlKey || e.metaKey)) return;
       e.preventDefault();
       const r = el.getBoundingClientRect();
-      const factor = Math.exp(-e.deltaY * 0.002);
+      const factor = Math.exp(-e.deltaY * WHEEL_ZOOM_RATE);
       setView((v) => {
         // Undo the current view to find the map point under the cursor, then zoom around it.
         const cx = (e.clientX - r.left - r.width / 2 - v.x) / v.z;
@@ -197,11 +258,22 @@ export function IslandMap() {
     setDragging(false);
   }
 
+  const focused = focusedId !== null;
   const floatingCard =
     activeDot && activePx ? (
-      <MarkerCard project={activeDot.project} floating at={activePx} side={cardSide((activePx.x / box.w) * 100)} onEnter={cancel} onLeave={close} />
+      <MarkerCard
+        project={activeDot.project}
+        floating
+        at={activePx}
+        box={box}
+        focused={focused}
+        onViewMore={() => setFocusedId(activeDot.id)}
+        onClose={unfocus}
+        onEnter={cancel}
+        onLeave={close}
+      />
     ) : activeCluster && activePx ? (
-      <ClusterCard projects={activeCluster.items.map((i) => i.project)} floating at={activePx} side={cardSide((activePx.x / box.w) * 100)} onPick={pick} onEnter={cancel} onLeave={close} />
+      <ClusterCard projects={activeCluster.items.map((i) => i.project)} floating at={activePx} side={activePx.x / box.w > 0.55 ? "left" : "right"} onPick={pick} onEnter={cancel} onLeave={close} />
     ) : null;
   const zoomControls = <MapZoomControls onIn={() => zoomBy(ZOOM.step)} onOut={() => zoomBy(1 / ZOOM.step)} onReset={reset} canIn={view.z < ZOOM.max} canOut={view.z > ZOOM.min} />;
 
@@ -222,8 +294,8 @@ export function IslandMap() {
           </div>
         </Container>
 
-        {/* Map box: full width below lg; on lg it sits to the right of the copy, vertically centred. */}
-        <div className="relative mx-auto w-full lg:absolute lg:right-[3%] lg:top-1/2 lg:w-[min(56%,130svh)] lg:-translate-y-1/2">
+        {/* Map box: full width below lg; on lg it sits to the right of the copy, vertically centred; on a portrait lg screen (tablet) it drops under the copy at nearly full width so the stage has no empty half. */}
+        <div className="relative mx-auto w-full lg:absolute lg:right-[2%] lg:top-1/2 lg:w-[min(62%,150svh)] lg:-translate-y-1/2 lg:portrait:top-auto lg:portrait:bottom-[5%] lg:portrait:w-[92%] lg:portrait:translate-y-0">
           <div className="lg:hidden">
             <Container className="pb-6">
               <FilterToggle value={filter} onChange={setFilter} />
@@ -251,8 +323,10 @@ export function IslandMap() {
                 zoom={shown.z}
                 activeId={activeDot?.id ?? null}
                 activeClusterKey={activeCluster?.key ?? null}
+                focusedId={focusedId}
                 onOpen={openDot}
                 onOpenCluster={openCluster}
+                onSplitCluster={splitCluster}
                 onLeave={leave}
                 onClose={close}
               />
@@ -264,11 +338,11 @@ export function IslandMap() {
         <div className="lg:hidden">
           <Container className="pt-6 pb-16">
             {activeDot ? (
-              <MarkerCard project={activeDot.project} floating={false} />
+              <MarkerCard project={activeDot.project} floating={false} focused={focused} onViewMore={() => setFocusedId(activeDot.id)} onClose={unfocus} />
             ) : activeCluster ? (
               <ClusterCard projects={activeCluster.items.map((i) => i.project)} floating={false} onPick={pick} />
             ) : (
-              <p className="text-sm text-paper/60">Tap a dot on the map. Numbered discs hold several roofs.</p>
+              <p className="text-sm text-paper/60">Tap a dot on the map. Tap a numbered disc to spread its roofs out.</p>
             )}
             <div className="mt-4">{zoomControls}</div>
             <p className="mt-6 text-xs text-paper/50">{MAP_CAPTION}</p>
@@ -281,7 +355,7 @@ export function IslandMap() {
         <div className="absolute bottom-6 right-10 hidden items-end gap-4 lg:flex">
           <p className="pointer-events-none max-w-xs text-right text-xs text-paper/50">
             {filter === "commercial" && !hasCommercial ? "Commercial roofs are being photographed. Back soon." : MAP_CAPTION}
-            <span className="mt-1 block text-paper/35">Drag to pan. Ctrl or ⌘ and scroll to zoom.</span>
+            <span className="mt-1 block text-paper/35">Drag to pan. Ctrl or ⌘ and scroll to zoom. Click a numbered disc to spread it out.</span>
           </p>
           {zoomControls}
         </div>

@@ -23,10 +23,10 @@ export function About() {
             designed and simulated before quoting, installed by a crew he trained, and looked after once the meter is in.
           </p>
           <p className="mt-4 text-ink-2">
-            The company serves landed homeowners, commercial buildings and factories. It has been recognised as SME500 and E100 in
-            2024, and holds a 5.0 rating on Google from the customers it has served so far.
+            The company serves landed homeowners, commercial buildings and factories. It is bizSAFE Level 3 certified for workplace
+            safety, and holds a 5.0 rating on Google from the customers it has served so far.
           </p>
-          <ul className="mt-6 flex flex-wrap items-center gap-4" aria-label="Awards">
+          <ul className="mt-6 flex flex-wrap items-center gap-4" aria-label="Safety certification">
             {SITE.accreditations.map((a) => (
               <li key={a.label}>
                 <Image src={a.image} alt={a.title} width={a.width} height={a.height} className="h-16 w-auto" />
@@ -36,7 +36,7 @@ export function About() {
           <div className="mt-6 max-w-md border-t border-rule pt-2">
             <StatementLine label="Founder" value="Hugh Chan" />
             <StatementLine label="Crew" value="In-house, no subcontractors" />
-            <StatementLine label="Awards" value={SITE.accreditations.map((a) => `${a.label} ${a.year}`).join(", ")} />
+            <StatementLine label="Safety" value={SITE.accreditations.map((a) => a.label).join(", ")} />
             <StatementLine label="Certified" value={SITE.certifications.map((c) => c.label.split(":")[0]).join(", ")} />
             <StatementLine label="Office" value="North Link Building, Admiralty" />
           </div>

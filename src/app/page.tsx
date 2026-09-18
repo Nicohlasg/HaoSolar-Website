@@ -4,6 +4,7 @@ import { IslandMap } from "@/components/home/IslandMap";
 import { Accreditations } from "@/components/home/Accreditations";
 import { ServicesTeaser } from "@/components/home/ServicesTeaser";
 import { ProjectShowcase } from "@/components/home/ProjectShowcase";
+import { LogoCloud } from "@/components/home/LogoCloud";
 import { Benefits } from "@/components/home/Benefits";
 import { ProcessTimeline } from "@/components/home/ProcessTimeline";
 import { ScrollVideoStages } from "@/components/home/ScrollVideoStages";
@@ -24,6 +25,7 @@ export default function HomePage() {
       <ServicesTeaser />
       <ProjectShowcase category="landed" title="Landed homes." lede="Terraces, semi-Ds and bungalows. Hover or tap for capacity, roof and yearly saving." />
       <ProjectShowcase category="commercial" title="Commercial and industrial." lede="Factories, warehouses and offices." tone="plain" />
+      <LogoCloud />
       <Benefits />
       <ProcessTimeline />
       <ScrollVideoStages />

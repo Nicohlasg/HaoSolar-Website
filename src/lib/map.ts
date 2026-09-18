@@ -13,11 +13,19 @@ export function inFilter(category: ProjectCategory, filter: MapFilter): boolean 
   return filter === "commercial" ? category === "commercial" : category !== "commercial";
 }
 
-/** Zoom limits, the button step, and how much further a hovered dot zooms from the current view. */
-export const ZOOM = { min: 1, max: 10, step: 1.6, hover: 2.2 } as const;
+/**
+ * Zoom limits, the button step, and how much further a hovered dot zooms
+ * from the current view. `max` is high because two roofs on one street sit
+ * a few hundred metres apart, and splitting them needs the island scaled
+ * tens of times; the outline is vector, so it stays crisp.
+ */
+export const ZOOM = { min: 1, max: 40, step: 2, hover: 2.2 } as const;
 
 /** Dots closer than this on screen, in px, merge into one cluster. */
 export const CLUSTER_RADIUS_PX = 30;
+
+/** Gap between the closest pair, in cluster radii, once a cluster is split open: room for two rings and a card. */
+const SPLIT_GAP = 2.4;
 
 /** Which side of a point the card opens on, so it never leaves the map box. */
 export function cardSide(xPercent: number): "left" | "right" {
@@ -88,4 +96,28 @@ export function clusterMarkers<T extends { id: string; at: Pct }>(items: readonl
     }
   }
   return clusters.map((c) => ({ key: c.items.map((i) => i.id).join("+"), items: c.items, at: { x: c.sx / c.items.length, y: c.sy / c.items.length } }));
+}
+
+/**
+ * The zoom at which every dot in a cluster stands clear of the others, so a
+ * click on the cluster can open it in one step. Two roofs on the same spot
+ * can never split, so that case returns the maximum.
+ */
+export function splitZoom<T extends { at: Pct }>(items: readonly T[], box: Box, radius = CLUSTER_RADIUS_PX): number {
+  let closest = Infinity;
+  for (let i = 0; i < items.length; i++) {
+    for (let j = i + 1; j < items.length; j++) {
+      const a = fromCentre(items[i].at, box);
+      const b = fromCentre(items[j].at, box);
+      closest = Math.min(closest, Math.hypot(a.x - b.x, a.y - b.y));
+    }
+  }
+  if (!Number.isFinite(closest) || closest <= 0) return ZOOM.max;
+  return Math.min(ZOOM.max, Math.max(ZOOM.min, (radius * SPLIT_GAP) / closest));
+}
+
+/** Keeps a floating card's centre inside the box, given half its size in px. */
+export function clampCentre(at: { x: number; y: number }, box: Box, half: { w: number; h: number }): { x: number; y: number } {
+  const clamp = (v: number, lo: number, hi: number) => (hi < lo ? (lo + hi) / 2 : Math.min(hi, Math.max(lo, v)));
+  return { x: clamp(at.x, half.w, box.w - half.w), y: clamp(at.y, half.h, box.h - half.h) };
 }

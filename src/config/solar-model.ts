@@ -7,7 +7,7 @@
  * that depends on a placeholder as indicative.
  */
 export const SOLAR_MODEL = {
-  /** Panel nameplate. Jinko Tiger Neo 590 W, from the June 2026 proposal template. */
+  /** Panel nameplate. Jinko Tiger Neo 590 W Bifacial (72HL4-BDV), from the June 2026 proposal template and the datasheet. */
   PANEL_WATTS: 590,
   /** Roof area one panel occupies, m². Jinko Tiger Neo is 2278 x 1134 mm = 2.58 m²; small allowance for clamps and rails. */
   PANEL_AREA_M2: 2.7,

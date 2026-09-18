@@ -3,10 +3,10 @@ import { Container } from "@/components/ui/Container";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { SITE } from "@/config/site";
 
-/** Awards and management-system certificates from the brand folder, as a quiet strip. */
+/** bizSAFE and the management-system certificates, as a quiet strip. */
 export function Accreditations() {
   const items = [
-    ...SITE.accreditations.map((a) => ({ key: a.label, src: a.image, alt: a.title, caption: `${a.label} ${a.year}`, note: "Award winner" })),
+    ...SITE.accreditations.map((a) => ({ key: a.label, src: a.image, alt: a.title, caption: a.label, note: "Workplace safety and health" })),
     ...SITE.certifications.map((c) => ({ key: c.label, src: c.image, alt: `${c.label}, ${c.subject}`, caption: c.label, note: c.subject })),
   ];
   return (
@@ -15,7 +15,7 @@ export function Accreditations() {
         <Reveal direction="left">
           <h2 id="accreditations" className="text-sm font-semibold uppercase tracking-wide text-ink-2">Recognised and certified</h2>
         </Reveal>
-        <Reveal as="ul" className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5" stagger={0.08}>
+        <Reveal as="ul" className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4" stagger={0.08}>
           {items.map((b) => (
             <RevealItem key={b.key} as="li" className="flex flex-col items-center text-center">
               <div className="flex h-24 items-center justify-center">

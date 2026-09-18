@@ -25,7 +25,7 @@ export const SERVICES: readonly Service[] = [
     ],
     facts: [
       { label: "Typical install time", value: "1 to 1.5 weeks" },
-      { label: "Panels", value: "Jinko Tiger Neo 590 W, 30-year warranty" },
+      { label: "Panels", value: "Jinko Tiger Neo 590 W Bifacial, 30-year output warranty" },
       { label: "Inverter", value: "Huawei SUN2000, 15-year warranty" },
       { label: "Performance guarantee", value: "30 years" },
       { label: "Workmanship warranty", value: "2 years" },

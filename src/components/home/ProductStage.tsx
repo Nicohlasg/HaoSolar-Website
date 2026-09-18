@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { AnimatePresence, motion, useMotionValue, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { Container } from "@/components/ui/Container";
 import { ScrubReveal } from "@/components/ui/ScrubReveal";
@@ -11,6 +11,7 @@ import { EASE_OUT, useIsLargeScreen, usePrefersReducedMotion } from "@/lib/motio
 import { cn } from "@/lib/cn";
 import { ProductModel } from "./ProductModel";
 import { ProductHotspot, type HotspotState } from "./ProductHotspot";
+import { HotspotPanel } from "./HotspotPanel";
 import { ProductTabs } from "./ProductTabs";
 
 /** Distance the product glides from centre to its side, in viewport widths. */
@@ -74,10 +75,13 @@ function Details({ product, progress, side }: { product: Product; progress: Moti
   );
 }
 
-function Hotspots({ product, progress }: { product: Product; progress: MotionValue<number> }) {
-  const [state, setState] = useState<{ id: string; mode: HotspotState } | null>(null);
+type SpotState = { id: string; mode: HotspotState } | null;
+
+/** The dots on the front face. One open spot hides the rest; the stage draws the panel above the product. */
+function Hotspots({ product, progress, state, onChange }: { product: Product; progress: MotionValue<number>; state: SpotState; onChange: (s: SpotState) => void }) {
   const opacity = useTransform(progress, [HOTSPOTS_FROM, HOTSPOTS_FROM + 0.06], [0, 1], { clamp: true });
   const pointer = useTransform(opacity, (o) => (o > 0.5 ? "auto" : "none"));
+  const openId = state?.mode === "open" ? state.id : null;
   return (
     <motion.div className="absolute inset-0" style={{ opacity, pointerEvents: pointer }}>
       {product.hotspots.map((h) => (
@@ -85,9 +89,10 @@ function Hotspots({ product, progress }: { product: Product; progress: MotionVal
           key={h.id}
           spot={h}
           state={state?.id === h.id ? state.mode : "closed"}
-          onPeek={() => setState({ id: h.id, mode: "peek" })}
-          onOpen={() => setState({ id: h.id, mode: "open" })}
-          onClose={() => setState(null)}
+          dimmed={openId !== null}
+          onPeek={() => onChange({ id: h.id, mode: "peek" })}
+          onOpen={() => onChange({ id: h.id, mode: "open" })}
+          onClose={() => onChange(null)}
         />
       ))}
     </motion.div>
@@ -98,8 +103,10 @@ function Hotspots({ product, progress }: { product: Product; progress: MotionVal
  * One product's scroll sequence. Large screens: a tall section with a
  * sticky stage; the product starts centred, turns a full circle and glides
  * to its side while the details land opposite, then holds with hotspots
- * live and the product switcher pinned bottom centre. Smaller screens and
- * reduced motion: the same content as a block, product above details.
+ * live and the product switcher pinned bottom centre. Clicking a hotspot
+ * opens its landscape panel over the stage and fades the product behind
+ * it. Smaller screens and reduced motion: the same content as a block,
+ * product above details.
  */
 export function ProductStage({ product, index, onSwitch }: { product: Product; index: number; onSwitch: (id: Product["id"]) => void }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -118,6 +125,9 @@ export function ProductStage({ product, index, onSwitch }: { product: Product; i
   const x = useTransform(progress, (p) => `${glideAt(p) * GLIDE_VW * sign}vw`);
   const scale = useTransform(progress, (p) => 1.15 - 0.15 * glideAt(p));
   const options = PRODUCTS.map((p) => ({ id: p.id, label: p.name }));
+  const [spot, setSpot] = useState<SpotState>(null);
+  const openSpot = spot?.mode === "open" ? (product.hotspots.find((h) => h.id === spot.id) ?? null) : null;
+  const closeSpot = useCallback(() => setSpot(null), []);
 
   return (
     <div id={`product-${product.id}`} ref={ref} className={cn("relative", rig ? "lg:h-[180svh]" : "py-8")}>
@@ -125,9 +135,10 @@ export function ProductStage({ product, index, onSwitch }: { product: Product; i
         <Container className="relative w-full py-16 lg:h-full lg:py-0">
           {/* Product: centred at the start, glides to its side. Below lg it simply sits above the details, turned a little so the depth reads. */}
           <div className="flex justify-center lg:absolute lg:inset-0 lg:items-center">
-            <motion.div style={rig ? { x, scale } : undefined} className="relative">
+            {/* Opacity on this wrapper, not the cuboid: a grouping property would flatten the 3D faces. */}
+            <motion.div style={rig ? { x, scale } : undefined} animate={{ opacity: openSpot ? 0.3 : 1 }} transition={{ duration: 0.4, ease: EASE_OUT }} className="relative">
               <ProductModel product={product} rotateY={rig ? rotateY : -24}>
-                <Hotspots product={product} progress={progress} />
+                <Hotspots product={product} progress={progress} state={spot} onChange={setSpot} />
               </ProductModel>
             </motion.div>
           </div>
@@ -140,6 +151,7 @@ export function ProductStage({ product, index, onSwitch }: { product: Product; i
           <ScrubReveal progress={progress} window={detailWindow(3, 4)} x={0} y={10} className="mt-8 flex justify-center lg:absolute lg:inset-x-0 lg:bottom-8 lg:mt-0">
             <ProductTabs options={options} active={product.id} onChange={(id) => onSwitch(id as Product["id"])} layoutGroup={`switch-${product.id}`} label="Choose a product" className="bg-paper shadow-sheet" />
           </ScrubReveal>
+          <AnimatePresence>{openSpot ? <HotspotPanel key={openSpot.id} spot={openSpot} onClose={closeSpot} /> : null}</AnimatePresence>
         </Container>
       </div>
     </div>

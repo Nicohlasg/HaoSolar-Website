@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { cardSide, clampPan, clusterMarkers, HOME_VIEW, inFilter, toBoxPx, toPercent, ZOOM, zoomAround } from "./map";
+import { cardSide, clampCentre, clampPan, clusterMarkers, HOME_VIEW, inFilter, splitZoom, toBoxPx, toPercent, ZOOM, zoomAround } from "./map";
 import { SG_BOUNDS } from "@/content/singapore-outline";
 
 const BOX = { w: 1000, h: 600 };
@@ -68,7 +68,7 @@ describe("zoomAround", () => {
   });
 
   test("clamps the zoom to the allowed range", () => {
-    expect(zoomAround(HOME_VIEW, { x: 50, y: 50 }, 40, BOX).z).toBe(ZOOM.max);
+    expect(zoomAround(HOME_VIEW, { x: 50, y: 50 }, 400, BOX).z).toBe(ZOOM.max);
     expect(zoomAround({ z: 3, x: 0, y: 0 }, { x: 50, y: 50 }, 0.2, BOX).z).toBe(ZOOM.min);
   });
 });
@@ -102,5 +102,34 @@ describe("clusterMarkers", () => {
 
   test("keys are stable and describe the members", () => {
     expect(clusterMarkers(dots, BOX, HOME_VIEW)[0].key).toBe("a+b");
+  });
+});
+
+describe("splitZoom", () => {
+  const box = { w: 1000, h: 600 };
+  test("returns the zoom that puts the closest pair a clear gap apart", () => {
+    // 1% of a 1000 px box is 10 px apart; 30 px radius times 2.4 gap needs 72 px, so 7.2x.
+    const z = splitZoom([{ at: { x: 50, y: 50 } }, { at: { x: 51, y: 50 } }, { at: { x: 60, y: 50 } }], box);
+    expect(z).toBeCloseTo(7.2, 5);
+  });
+  test("after that zoom the cluster is apart", () => {
+    const items = [{ id: "a", at: { x: 50, y: 50 } }, { id: "b", at: { x: 51, y: 50 } }];
+    const z = splitZoom(items, box);
+    expect(clusterMarkers(items, box, { z, x: 0, y: 0 })).toHaveLength(2);
+  });
+  test("never below 1 and capped at the maximum", () => {
+    expect(splitZoom([{ at: { x: 10, y: 10 } }, { at: { x: 90, y: 90 } }], box)).toBe(ZOOM.min);
+    expect(splitZoom([{ at: { x: 50, y: 50 } }, { at: { x: 50, y: 50 } }], box)).toBe(ZOOM.max);
+    expect(splitZoom([{ at: { x: 50, y: 50 } }], box)).toBe(ZOOM.max);
+  });
+});
+
+describe("clampCentre", () => {
+  test("keeps a card inside the box", () => {
+    expect(clampCentre({ x: 10, y: 590 }, { w: 1000, h: 600 }, { w: 160, h: 176 })).toEqual({ x: 160, y: 424 });
+    expect(clampCentre({ x: 500, y: 300 }, { w: 1000, h: 600 }, { w: 160, h: 176 })).toEqual({ x: 500, y: 300 });
+  });
+  test("centres a card wider than the box", () => {
+    expect(clampCentre({ x: 0, y: 0 }, { w: 200, h: 600 }, { w: 160, h: 10 }).x).toBe(100);
   });
 });
