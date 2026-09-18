@@ -116,7 +116,8 @@ function Panel({ project, active, onActivate, reduced }: { project: Project; act
       >
         <ProjectPhoto project={project} index={1} fill sizes="(min-width: 640px) 60vw, 100vw" />
       </motion.div>
-      <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent" />
+      {/* Legibility wash behind the caption only, so the photo keeps its own colour. */}
+      <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-ink/85 via-ink/45 to-transparent" />
 
       {/* collapsed label */}
       <motion.div

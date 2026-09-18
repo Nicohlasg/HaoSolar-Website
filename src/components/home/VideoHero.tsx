@@ -3,7 +3,7 @@
 import { useCallback, useState, type ReactNode } from "react";
 import { Container } from "@/components/ui/Container";
 import { VideoFrame } from "@/components/media/VideoFrame";
-import { PROJECTS, type Project } from "@/content/projects";
+import { HERO_REEL, PROJECTS, type Project } from "@/content/projects";
 import { HERO_CLIP } from "@/content/media";
 import { cueAt } from "@/lib/hero";
 import { ParallaxLayers } from "./ParallaxLayers";
@@ -12,9 +12,6 @@ import { HeroCue } from "./HeroCue";
 import { PostalCodeForm } from "./PostalCodeForm";
 
 const TRUST = ["Founder on every site", "Our own crew", "LEW certified"] as const;
-
-/** Roofs the reel (or the slideshow) passes over: photographed landed jobs plus one commercial roof if there is one. */
-const REEL = [...PROJECTS.filter((p) => p.category === "landed" && p.photos).slice(0, 5), ...PROJECTS.filter((p) => p.category === "commercial" && p.photos).slice(0, 1)];
 
 /**
  * Full-bleed film hero. The footage owns the frame: gradient only on the
@@ -32,7 +29,7 @@ export function VideoHero() {
 
   return (
     <ParallaxLayers className="relative isolate min-h-[100svh] overflow-hidden bg-ink text-paper">
-      {HERO_CLIP.src ? <VideoFrame clip={HERO_CLIP} fill dark onTime={onTime} /> : <HeroSlideshow slides={REEL} onChange={setCurrent} renderProgress={setProgress} />}
+      {HERO_CLIP.src ? <VideoFrame clip={HERO_CLIP} fill dark onTime={onTime} /> : <HeroSlideshow slides={HERO_REEL} onChange={setCurrent} renderProgress={setProgress} />}
       <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-ink via-ink/55 to-transparent" />
       {/* Extra bottom room below sm clears the fixed WhatsApp bar. */}
       <Container className="relative flex min-h-[100svh] flex-col justify-end pb-24 pt-28 sm:pb-8" data-parallax="2">

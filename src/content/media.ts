@@ -1,7 +1,11 @@
 /**
- * Video sections. `src` and `poster` stay null until Hugh supplies footage;
- * the VideoFrame component then renders a labelled placeholder that says
- * what to shoot. Paths, once available, go under /public/video and /public/images.
+ * Video sections. `src` and `poster` stay null until footage exists; the
+ * VideoFrame component then renders a labelled placeholder that says what to
+ * shoot. Paths go under /public/video and /public/images.
+ *
+ * Installation and After handover carry drone clips cut from the source MP4s
+ * with `avconvert` (1080p, muted, trimmed as the file names asked: Inggu from
+ * 2 s, Trisome to 11 s). Survey has no footage yet, so it stays a placeholder.
  */
 import type { HeroCue } from "@/lib/hero";
 
@@ -60,10 +64,10 @@ export const MEDIA_SECTIONS: readonly MediaSection[] = [
     line: "Our own crew, no subcontractors. Hugh comes down to check.",
     clip: {
       id: "install",
-      src: null,
-      poster: null,
+      src: "/video/install.mp4",
+      poster: "/images/video/install-poster.jpg",
       shotList: "Site footage: mounting rails, panels going up, inverter wiring, Hugh checking the work, 30 to 45 s",
-      durationHint: "30 to 45 s",
+      durationHint: "13 s loop, muted",
     },
     facts: [
       { label: "Typical duration", value: "1 to 1.5 weeks" },
@@ -76,10 +80,10 @@ export const MEDIA_SECTIONS: readonly MediaSection[] = [
     line: "SP Group meter swapped, monitoring app on your phone, and the credit line on your next bill.",
     clip: {
       id: "after",
-      src: null,
-      poster: null,
+      src: "/video/after-handover.mp4",
+      poster: "/images/video/after-handover-poster.jpg",
       shotList: "Phone screen recording of the monitoring app, then a real bill with the solar credit line (name blurred), 15 to 20 s",
-      durationHint: "15 to 20 s",
+      durationHint: "11 s loop, muted",
     },
     facts: [
       { label: "Maintenance included", value: "24 months", toConfirm: true },

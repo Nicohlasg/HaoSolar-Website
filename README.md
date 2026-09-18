@@ -4,6 +4,8 @@ The public website for Hao Solar: home page, services, projects, solar savings c
 
 Built with Next.js 16, React 19, TypeScript, Tailwind CSS 4 and Framer Motion.
 
+Photos are stored at full drone resolution (4032 px wide) and Next.js serves a smaller version to each visitor, so the repository is larger than the pages it sends.
+
 ## What you need
 
 - Node.js 22 or newer (`.nvmrc` pins 22) and npm 10 or newer
@@ -57,7 +59,7 @@ PORT=3000 npm start
 - **Environment variables.** Put them in `.env.local` on the server (git ignores every `.env*` file). Only variables that start with `NEXT_PUBLIC_` reach the browser, so keep secrets without that prefix.
 - **Spam and abuse.** Both form endpoints have a hidden honeypot field but no rate limit. Add a limit at the proxy or in the route, and consider a CAPTCHA (see the list below).
 - **Placeholder content.** Figures that are not yet confirmed carry a red "to confirm" tag. Search the code for `TO CONFIRM`, `PLACEHOLDER` and `sample: true` before launch. That covers the export rate, the price per kWp, the maintenance period and the legal entity in the footer.
-- **Photos.** Drone and phone photos contain the exact GPS position of the customer's house. Run `npm run photos:clean` after adding any image under `public/images`, and `npm run photos:check` before every push. If a photo only displays the right way up because of its metadata, the script refuses it and prints the rotation to apply first (`sips -r <degrees>` on a Mac).
+- **Photos.** Drone and phone photos contain the exact GPS position of the customer's house. Run `npm run photos:clean` after adding any image under `public/images`, and `npm run photos:check` before every push. If a photo only displays the right way up because of its metadata, the script refuses it and prints the rotation to apply first (`sips -r <degrees>` on a Mac). `sips` leaves the old rotation tag behind, so run the script once more with `--force` after rotating.
 - **Customer privacy.** Project cards show a rough area only, never an address or house number, and map positions are rounded to about a kilometre. Please keep it that way.
 
 ## Planned features and the APIs they need
@@ -70,7 +72,7 @@ PORT=3000 npm start
 | Live Google rating and reviews | Google Places API (Place Details) | Replaces the hand-copied reviews in `src/content/reviews.ts`. Cache the result for a day. |
 | Current electricity tariff | SP Group tariff, published quarterly; [data.gov.sg](https://data.gov.sg) datasets | There is no official live API. A scheduled job that updates `src/config/solar-model.ts` each quarter is enough. |
 | Form spam protection | Cloudflare Turnstile or Google reCAPTCHA | Site key in the browser, secret key checked on the server in the form routes. |
-| Drone video in the hero | None, video files only | Drop an MP4 and a poster image into `public/video/` and set `HERO_CLIP` in `src/content/media.ts`. |
+| Drone video in the hero | None, video files only | Drop an MP4 and a poster image into `public/video/` and set `HERO_CLIP` in `src/content/media.ts`. The Installation and After handover sections already play clips; the Survey section still needs footage. |
 | WhatsApp replies from the website | WhatsApp Business Platform (Cloud API) | Optional. The site currently opens a normal `wa.me` chat link. |
 | Visitor analytics | Google Analytics 4, or any tool the company already uses | Add the script in `src/app/layout.tsx` and update the privacy policy page. |
 
@@ -84,7 +86,8 @@ src/components/        page sections and UI pieces
 src/content/           text, projects, reviews, FAQ, guides
 src/config/            company details (site.ts), calculator figures (solar-model.ts), colours
 src/lib/               calculator maths and animation helpers, with tests (*.test.ts)
-public/images/         logo, certificates, project photos (metadata stripped)
+public/images/         logo, certificates, project photos (metadata stripped), video posters
+public/video/          section clips, 1080p and muted
 scripts/               strip-photo-metadata.mjs, shoot.mjs (screenshot and overflow check)
 ```
 

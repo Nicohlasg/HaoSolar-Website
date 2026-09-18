@@ -4,7 +4,7 @@
 // Run this on every new image before it is committed under public/.
 //
 // Usage:
-//   node scripts/strip-photo-metadata.mjs [--check] <file-or-folder>...
+//   node scripts/strip-photo-metadata.mjs [--check] [--force] <file-or-folder>...
 //   npm run photos:clean      (cleans public/images)
 //   npm run photos:check      (fails if any image under public/images still has metadata)
 //
@@ -16,6 +16,8 @@
 // EXIF also stores which way up a photo is. Removing it would turn a photo
 // that relies on it sideways, so such files are refused until their pixels are
 // rotated. On macOS: `sips -r <degrees> <file>` with the degrees printed below.
+// `sips` leaves the old orientation tag behind, so pass --force on the next run
+// to confirm the pixels are already the right way up.
 
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { extname, join } from "node:path";
@@ -27,9 +29,10 @@ const ROTATE_FOR = { 3: 180, 6: 90, 8: 270 };
 
 const args = process.argv.slice(2);
 const checkOnly = args.includes("--check");
-const targets = args.filter((a) => a !== "--check");
+const force = args.includes("--force");
+const targets = args.filter((a) => !a.startsWith("--"));
 if (targets.length === 0) {
-  console.error("Usage: node scripts/strip-photo-metadata.mjs [--check] <file-or-folder>...");
+  console.error("Usage: node scripts/strip-photo-metadata.mjs [--check] [--force] <file-or-folder>...");
   process.exit(2);
 }
 
@@ -56,7 +59,7 @@ function processFile(file) {
   const input = readFileSync(file);
   const { output, orientation } = isPng(input) ? stripPng(input) : stripJpeg(input);
   if (output.length === input.length) return null;
-  if (orientation && orientation !== 1) {
+  if (orientation && orientation !== 1 && !force) {
     const degrees = ROTATE_FOR[orientation];
     throw new Error(`relies on EXIF orientation ${orientation}; rotate the pixels first${degrees ? ` (sips -r ${degrees})` : ""}, then run again`);
   }

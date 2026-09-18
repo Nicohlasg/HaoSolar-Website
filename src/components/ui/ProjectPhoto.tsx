@@ -3,6 +3,9 @@ import { PhotoPlaceholder } from "@/components/ui/PhotoPlaceholder";
 import type { Project } from "@/content/projects";
 import { cn } from "@/lib/cn";
 
+/** Roof photos are the point of the page, so they are encoded above Next's default 75. */
+const PHOTO_QUALITY = 90;
+
 const CATEGORY_LABEL: Record<Project["category"], string> = { landed: "Landed home", commercial: "Commercial", ev: "EV charger" };
 
 /**
@@ -42,11 +45,11 @@ export function ProjectPhoto({
     );
   }
   if (fill) {
-    return <Image src={photo.src} alt={photo.alt} fill sizes={sizes} priority={priority} className={cn("object-cover", className)} />;
+    return <Image src={photo.src} alt={photo.alt} fill sizes={sizes} priority={priority} quality={PHOTO_QUALITY} className={cn("object-cover", className)} />;
   }
   return (
     <div className={cn("relative w-full overflow-hidden rounded-md bg-paper-2", className)} style={{ aspectRatio: ratio }}>
-      <Image src={photo.src} alt={photo.alt} fill sizes={sizes} priority={priority} className="object-cover" />
+      <Image src={photo.src} alt={photo.alt} fill sizes={sizes} priority={priority} quality={PHOTO_QUALITY} className="object-cover" />
     </div>
   );
 }
