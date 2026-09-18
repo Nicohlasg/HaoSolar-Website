@@ -8,8 +8,8 @@
  */
 export type Client = { slug: string; name: string; src: string; width: number; height: number };
 
-export const CLIENTS_KICKER = "Commercial and institutional clients";
-export const CLIENTS_HEADLINE = "Roofs we have been trusted with.";
+export const CLIENTS_KICKER = "Trusted partners";
+export const CLIENTS_HEADLINE = "From campuses to clinics, across the island.";
 
 export const CLIENTS: readonly Client[] = [
   { slug: "southpoint", name: "SouthPoint", src: "/images/clients/southpoint.png", width: 1404, height: 256 },
