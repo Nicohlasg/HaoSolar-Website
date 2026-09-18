@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { PhotoPlaceholder } from "@/components/ui/PhotoPlaceholder";
 import type { Project } from "@/content/projects";
+import { PHOTO_BLUR } from "@/content/photo-blur";
 import { cn } from "@/lib/cn";
 
 /** Roof photos are the point of the page, so they are encoded above Next's default 75. */
@@ -22,6 +23,8 @@ export function ProjectPhoto({
   priority,
   className,
   dark,
+  onLoad,
+  quality = PHOTO_QUALITY,
 }: {
   project: Project;
   index?: number;
@@ -31,8 +34,15 @@ export function ProjectPhoto({
   priority?: boolean;
   className?: string;
   dark?: boolean;
+  /** Fires once the full frame has decoded, so a slideshow can wait for it. */
+  onLoad?: () => void;
+  /** Lower it for full-bleed backgrounds, where the file size matters more than the detail. */
+  quality?: number;
 }) {
   const photo = project.photos?.[index] ?? project.photos?.[0];
+  /* A 20 px preview stands in while the full frame arrives, so nothing pops. */
+  const blur = photo ? PHOTO_BLUR[photo.src] : undefined;
+  const blurProps = blur ? ({ placeholder: "blur", blurDataURL: blur } as const) : {};
   if (!photo) {
     return (
       <PhotoPlaceholder
@@ -45,11 +55,11 @@ export function ProjectPhoto({
     );
   }
   if (fill) {
-    return <Image src={photo.src} alt={photo.alt} fill sizes={sizes} priority={priority} quality={PHOTO_QUALITY} className={cn("object-cover", className)} />;
+    return <Image src={photo.src} alt={photo.alt} fill sizes={sizes} priority={priority} quality={quality} onLoad={onLoad} {...blurProps} className={cn("object-cover", className)} />;
   }
   return (
     <div className={cn("relative w-full overflow-hidden rounded-md bg-paper-2", className)} style={{ aspectRatio: ratio }}>
-      <Image src={photo.src} alt={photo.alt} fill sizes={sizes} priority={priority} quality={PHOTO_QUALITY} className="object-cover" />
+      <Image src={photo.src} alt={photo.alt} fill sizes={sizes} priority={priority} quality={quality} onLoad={onLoad} {...blurProps} className="object-cover" />
     </div>
   );
 }

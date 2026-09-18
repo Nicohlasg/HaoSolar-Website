@@ -13,7 +13,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "photos:clean": "node scripts/strip-photo-metadata.mjs public/images",
-    "photos:check": "node scripts/strip-photo-metadata.mjs --check public/images"
+    "photos:check": "node scripts/strip-photo-metadata.mjs --check public/images",
+    "photos:blur": "node scripts/make-blur-placeholders.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
