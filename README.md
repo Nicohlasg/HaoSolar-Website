@@ -4,6 +4,16 @@ The public website for Hao Solar: home page, services, projects, solar savings c
 
 Built with Next.js 16, React 19, TypeScript, Tailwind CSS 4 and Framer Motion.
 
+## Access and use
+
+> [!IMPORTANT]
+> This repository is public so the company's staff and contractors can reach it without a GitHub invitation, but it is **not open source**. Only people authorised by Hao Solar may clone, fork, deploy or reuse it. Everything here, including the drone photographs, videos, copy and the calculator model, is copyright Hao Solar Pte Ltd, all rights reserved. See [LICENSE](LICENSE). Third-party logos identify the organisations named and belong to their owners.
+>
+> If you found this repository and are not working with Hao Solar, please do not clone or redistribute it. Contact info@haosolar.org with any questions.
+
+A public repository can be read by anyone; the notice above is a legal restriction, not a technical one. If cloning itself must be blocked, keep the repository private and add each authorised person as a collaborator instead.
+
+
 Photos are stored at full drone resolution (4032 px wide) and Next.js serves a smaller version to each visitor, so the repository is larger than the pages it sends.
 
 ## What you need
