@@ -20,7 +20,8 @@ export function ProgressiveBlur({ direction = "bottom", blurLayers = 8, classNam
   const layers = Math.max(blurLayers, 2);
   const segmentSize = 1 / (blurLayers + 1);
   return (
-    <div className={cn("relative", className)}>
+    // Position comes from the caller (usually absolute at one edge); "relative" is only the fallback, since plain clsx would keep both classes.
+    <div className={cn(!className?.includes("absolute") && "relative", className)}>
       {Array.from({ length: layers }).map((_, index) => {
         const angle = GRADIENT_ANGLES[direction];
         const gradientStops = [index * segmentSize, (index + 1) * segmentSize, (index + 2) * segmentSize, (index + 3) * segmentSize].map(

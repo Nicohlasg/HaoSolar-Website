@@ -7,14 +7,14 @@ import { CLIENTS, CLIENTS_HEADLINE, CLIENTS_KICKER } from "@/content/clients";
 
 /**
  * The logo-cloud-4 pattern from the reference list: one slider of client
- * marks inside a bounded band with hairlines above and below, a soft
- * blur at both ends, and a slower glide while the pointer rests on it.
- * Logos sit at one height so the row reads as a line. The section clips
- * sideways because the hairlines span the viewport.
+ * marks in a band that runs edge to edge, hairlines above and below, a
+ * progressive blur at both ends so marks dissolve as they leave, and a
+ * slower glide while the pointer rests on it. Logos sit at one height so
+ * the row reads as a line.
  */
 export function LogoCloud() {
   return (
-    <section aria-labelledby="clients" className="overflow-x-clip border-t border-rule bg-paper py-16 sm:py-20">
+    <section aria-labelledby="clients" className="border-t border-rule bg-paper py-16 sm:py-20">
       <Container>
         <Reveal>
           <h2 id="clients" className="mb-8 text-center">
@@ -24,8 +24,7 @@ export function LogoCloud() {
         </Reveal>
       </Container>
       <Reveal>
-        <div className="relative mx-auto max-w-3xl bg-gradient-to-r from-paper-2 via-transparent to-paper-2 py-6 md:border-x md:border-rule">
-          <div aria-hidden="true" className="pointer-events-none absolute -top-px left-1/2 w-screen -translate-x-1/2 border-t border-rule" />
+        <div className="relative w-full border-y border-rule bg-gradient-to-r from-paper-2 via-transparent to-paper-2 py-6">
 
           <InfiniteSlider gap={42} reverse speed={60} speedOnHover={20}>
             {CLIENTS.map((c) => (
@@ -42,10 +41,8 @@ export function LogoCloud() {
             ))}
           </InfiniteSlider>
 
-          <ProgressiveBlur blurIntensity={1} className="pointer-events-none absolute left-0 top-0 h-full w-[160px]" direction="left" />
-          <ProgressiveBlur blurIntensity={1} className="pointer-events-none absolute right-0 top-0 h-full w-[160px]" direction="right" />
-
-          <div aria-hidden="true" className="pointer-events-none absolute -bottom-px left-1/2 w-screen -translate-x-1/2 border-b border-rule" />
+          <ProgressiveBlur blurIntensity={1} className="pointer-events-none absolute left-0 top-0 h-full w-[120px] sm:w-[200px]" direction="left" />
+          <ProgressiveBlur blurIntensity={1} className="pointer-events-none absolute right-0 top-0 h-full w-[120px] sm:w-[200px]" direction="right" />
         </div>
       </Reveal>
     </section>
